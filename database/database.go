@@ -14,7 +14,7 @@ func ConnectToDB() error {
 	var err error
 
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI("mongodb+srv://brunodev:nXImLqcabHzqET2f@offside-db.vqn36.mongodb.net/?retryWrites=true&w=majority&appName=offside-db").SetServerAPIOptions(serverAPI)
+	opts := options.Client().ApplyURI("mongodb+srv://<user>:<password>@<db-name>.vqn36.mongodb.net/?retryWrites=true&w=majority&appName=<app-name>").SetServerAPIOptions(serverAPI)
 
 	client, err = mongo.Connect(context.TODO(), opts)
 	if err != nil {
