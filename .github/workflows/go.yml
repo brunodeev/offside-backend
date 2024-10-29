@@ -1,6 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
 name: Go
 
 on:
@@ -23,6 +20,20 @@ jobs:
 
     - name: Build
       run: go build -v main.go
+
+    - name: Run Linter (golint)
+      run: |
+        go install golang.org/x/lint/golint@latest
+        golint ./... | tee golint-report.txt
+      continue-on-error: true
+
+    - name: Check Code Formatting (gofmt)
+      run: |
+        gofmt -l .
+        if [ $? -ne 0 ]; then
+          echo "Code is not formatted correctly. Please run 'gofmt -w .' to format the code."
+          exit 1
+        fi
 
     - name: Test
       run: go test -v ./...
