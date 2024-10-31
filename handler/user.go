@@ -8,6 +8,7 @@ import (
 	"github.com/brunodeev/offside-backend/model"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserHandler struct{}
@@ -39,4 +40,30 @@ func (u *UserHandler) GetUsers(c *fiber.Ctx) error {
 	}
 
 	return c.Status(200).JSON(users)
+}
+
+func (u *UserHandler) RegisterUser(c *fiber.Ctx) error {
+	var user model.User
+
+	err := c.BodyParser(&user)
+	if err != nil {
+		return fmt.Errorf("falha na conversão do usuário")
+	}
+
+	collection := database.Client.Database("offside-db").Collection("users")
+
+	user.ID = primitive.NewObjectID()
+
+	_, err = collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		return fmt.Errorf("falha na inserção do usuário no banco")
+	}
+
+	if err := c.Status(201).JSON(fiber.Map{
+		"message": "Usuário criado com sucesso",
+	}); err != nil {
+		return fmt.Errorf("falha no envio da resposta JSON: %w", err)
+	}
+
+	return nil
 }

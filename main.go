@@ -28,6 +28,7 @@ func main() {
 	userHandler := handler.NewUserHandler()
 
 	app.Get("/", userHandler.GetUsers)
+	app.Post("/register", userHandler.RegisterUser)
 
 	app.Listen(":8080")
 }
