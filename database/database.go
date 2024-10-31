@@ -8,15 +8,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client *mongo.Client
+var Client *mongo.Client
 
-func ConnectToDB() error {
+func ConnectToDB(dbUser, dbPassword string) error {
 	var err error
 
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI("mongodb+srv://<user>:<password>@<db-name>.vqn36.mongodb.net/?retryWrites=true&w=majority&appName=<app-name>").SetServerAPIOptions(serverAPI)
+	opts := options.Client().ApplyURI(fmt.Sprintf("mongodb+srv://%s:%s@offside-db.vqn36.mongodb.net/?retryWrites=true&w=majority&appName=offside-db", dbUser, dbPassword)).SetServerAPIOptions(serverAPI)
 
-	client, err = mongo.Connect(context.TODO(), opts)
+	Client, err = mongo.Connect(context.TODO(), opts)
 	if err != nil {
 		return fmt.Errorf("failed to connect to mongo db: %w", err)
 	}
