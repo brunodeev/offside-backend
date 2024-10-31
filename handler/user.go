@@ -67,3 +67,35 @@ func (u *UserHandler) RegisterUser(c *fiber.Ctx) error {
 
 	return nil
 }
+
+func (u *UserHandler) LoginUser(c *fiber.Ctx) error {
+	var user model.User
+	var userMongo model.User
+
+	collection := database.Client.Database("offside-db").Collection("users")
+
+	err := c.BodyParser(&user)
+	if err != nil {
+		return fmt.Errorf("falha na conversão do usuário")
+	}
+
+	result := collection.FindOne(context.TODO(), bson.M{"email": user.Email})
+	if result == nil {
+		return fmt.Errorf("falha ao encontrar o usuário")
+	}
+
+	err = result.Decode(&userMongo)
+	if err != nil {
+		return fmt.Errorf("falha na conversão do usuário do mongo")
+	}
+
+	if user.Email == userMongo.Email && user.Password == userMongo.Password {
+		return c.Status(200).JSON(fiber.Map{
+			"message": fmt.Sprintf("olá, %s!", userMongo.Name),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"message": fmt.Sprintf("olá, %s!", userMongo.Name),
+	})
+}
