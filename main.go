@@ -1,26 +1,17 @@
 package main
 
 import (
-	"os"
-
 	"github.com/brunodeev/offside-backend/database"
 	"github.com/brunodeev/offside-backend/handler"
+	"github.com/brunodeev/offside-backend/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
 func main() {
+	utils.LoadEnv()
 	app := fiber.New()
 
-	err := godotenv.Load(".env")
-	if err != nil {
-		panic("Erro ao buscar variáveis de ambiente")
-	}
-
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-
-	err = database.ConnectToDB(dbUser, dbPassword)
+	err := database.ConnectToDB(utils.UserDB, utils.PasswordDB)
 	if err != nil {
 		panic("Deu pau geral!")
 	}
