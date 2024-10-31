@@ -6,16 +6,11 @@ import (
 	"os"
 
 	"github.com/brunodeev/offside-backend/database"
+	"github.com/brunodeev/offside-backend/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-type User struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
-}
 
 func main() {
 	app := fiber.New()
@@ -41,10 +36,10 @@ func main() {
 			return fmt.Errorf("falha na busca dos documentos da collection users: %w", err)
 		}
 
-		var users []User
+		var users []model.User
 
 		for cur.Next(context.TODO()) {
-			var user User
+			var user model.User
 
 			cur.Decode(&user)
 
