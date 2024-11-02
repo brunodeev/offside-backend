@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/brunodeev/offside-backend/database"
 	"github.com/brunodeev/offside-backend/handler"
 	"github.com/brunodeev/offside-backend/utils"
@@ -11,12 +13,11 @@ func main() {
 	utils.LoadEnv()
 	app := fiber.New()
 
-	err := database.ConnectToDB(utils.UserDB, utils.PasswordDB)
-	if err != nil {
-		panic("Deu pau geral!")
+	if err := database.ConnectToDB(utils.UserDB, utils.PasswordDB); err != nil {
+		log.Fatal("não foi possível estabelecer conexão com o banco!")
 	}
 
-	userHandler := handler.NewUserHandler()
+	userHandler := handler.NewUserHandler(database.Client)
 
 	app.Get("/", userHandler.GetUsers)
 	app.Post("/register", userHandler.RegisterUser)

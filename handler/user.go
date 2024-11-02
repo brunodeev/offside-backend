@@ -6,15 +6,20 @@ import (
 
 	"github.com/brunodeev/offside-backend/database"
 	"github.com/brunodeev/offside-backend/model"
+	"github.com/brunodeev/offside-backend/repository"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type UserHandler struct{}
+type UserHandler struct {
+	userRepo *repository.UserRepository
+}
 
-func NewUserHandler() *UserHandler {
-	return &UserHandler{}
+func NewUserHandler(client *mongo.Client) *UserHandler {
+	return &UserHandler{
+		userRepo: repository.NewUserRepository(client, "offside-db", "users"),
+	}
 }
 
 func (u *UserHandler) GetUsers(c *fiber.Ctx) error {
@@ -45,18 +50,12 @@ func (u *UserHandler) GetUsers(c *fiber.Ctx) error {
 func (u *UserHandler) RegisterUser(c *fiber.Ctx) error {
 	var user model.User
 
-	err := c.BodyParser(&user)
-	if err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		return fmt.Errorf("falha na conversão do usuário")
 	}
 
-	collection := database.Client.Database("offside-db").Collection("users")
-
-	user.ID = primitive.NewObjectID()
-
-	_, err = collection.InsertOne(context.TODO(), user)
-	if err != nil {
-		return fmt.Errorf("falha na inserção do usuário no banco")
+	if err := u.userRepo.Insert(&user); err != nil {
+		return fmt.Errorf("falha na inserção do usuário")
 	}
 
 	if err := c.Status(201).JSON(fiber.Map{
