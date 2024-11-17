@@ -7,6 +7,7 @@ import (
 	"github.com/brunodeev/offside-backend/database"
 	"github.com/brunodeev/offside-backend/model"
 	"github.com/brunodeev/offside-backend/repository"
+	"github.com/brunodeev/offside-backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -54,6 +55,13 @@ func (u *UserHandler) RegisterUser(c *fiber.Ctx) error {
 		return fmt.Errorf("falha na conversão do usuário")
 	}
 
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return fmt.Errorf("falha na criação do hash da senha")
+	}
+
+	user.Password = hashedPassword
+
 	if err := u.userRepo.Insert(&user); err != nil {
 		return fmt.Errorf("falha na inserção do usuário")
 	}
@@ -88,9 +96,9 @@ func (u *UserHandler) LoginUser(c *fiber.Ctx) error {
 		return fmt.Errorf("falha na conversão do usuário do mongo")
 	}
 
-	if user.Email == userMongo.Email && user.Password == userMongo.Password {
+	if user.Email == userMongo.Email && utils.CheckPassword(userMongo.Password, user.Password) {
 		return c.Status(200).JSON(fiber.Map{
-			"message": fmt.Sprintf("olá, %s!", userMongo.Name),
+			"message": fmt.Sprintf("Olá, %s!", userMongo.Name),
 		})
 	}
 
