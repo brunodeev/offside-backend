@@ -21,7 +21,7 @@ func main() {
 
 	app.Get("/", userHandler.GetUsers)
 	app.Post("/register", userHandler.RegisterUser)
-	app.Get("/login", userHandler.LoginUser)
+	app.Post("/login", userHandler.LoginUser)
 
 	app.Listen(":8080")
 }

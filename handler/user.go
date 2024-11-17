@@ -96,13 +96,13 @@ func (u *UserHandler) LoginUser(c *fiber.Ctx) error {
 		return fmt.Errorf("falha na conversão do usuário do mongo")
 	}
 
-	if user.Email == userMongo.Email && utils.CheckPassword(userMongo.Password, user.Password) {
-		return c.Status(200).JSON(fiber.Map{
-			"message": fmt.Sprintf("Olá, %s!", userMongo.Name),
+	if user.Email != userMongo.Email || !utils.CheckPassword(userMongo.Password, user.Password) {
+		return c.Status(400).JSON(fiber.Map{
+			"message": fmt.Sprint("Ih, deu ruim!"),
 		})
 	}
 
 	return c.Status(200).JSON(fiber.Map{
-		"message": fmt.Sprintf("olá, %s!", userMongo.Name),
+		"message": fmt.Sprintf("Olá, %s!", userMongo.Name),
 	})
 }
